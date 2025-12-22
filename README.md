@@ -2,6 +2,12 @@
 
 A scalable, production-ready full-stack boilerplate for building AI-first applications with Next.js, FastAPI, and modern AI services.
 
+> **🚀 Quick Start for New Projects**: Simply clone this repository to start a new project:
+> ```bash
+> git clone https://github.com/Kyaa-A/axiom-boilerplate.git your-project-name
+> cd your-project-name
+> ```
+
 ## 🎯 Project Goals
 
 - **Clean Architecture**: Separation of concerns, SOLID principles
@@ -79,8 +85,15 @@ A scalable, production-ready full-stack boilerplate for building AI-first applic
 ### 1. Clone Repository
 
 ```bash
-git clone <your-repo>
-cd axiom-boilerplate
+# Clone this boilerplate for your new project
+git clone https://github.com/Kyaa-A/axiom-boilerplate.git your-project-name
+cd your-project-name
+
+# Remove the existing git history and initialize a new repository
+rm -rf .git
+git init
+git add .
+git commit -m "Initial commit from axiom-boilerplate"
 ```
 
 ### 2. Configure Environment
@@ -366,5 +379,3 @@ MIT License - Use freely for any project
 - ⬜ CI/CD pipelines
 
 ---
-
-# axiom-boilerplate
