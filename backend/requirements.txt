@@ -25,14 +25,13 @@ celery[redis]==5.3.6
 langchain==0.1.4
 langchain-community==0.0.16
 openai==1.10.0  # For Cerebras OpenAI-compatible API
-voyageai==0.2.0
-qdrant-client==1.7.3
+voyageai==0.2.4
 
 # Logging
 structlog==24.1.0
 
 # HTTP Client
-httpx==0.26.0
+httpx==0.24.1
 
 # Utilities
 python-dotenv==1.0.0
