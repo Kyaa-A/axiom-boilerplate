@@ -54,7 +54,7 @@ if docker-compose ps | grep -q "Up"; then
     echo "   Frontend:  http://localhost:3000"
     echo "   Backend:   http://localhost:8000"
     echo "   API Docs:  http://localhost:8000/docs"
-    echo "   Qdrant:    http://localhost:6333/dashboard"
+    echo "   Weaviate:  http://localhost:8080"
     echo ""
     echo "📚 Next steps:"
     echo "   1. Edit backend/.env with your API keys"

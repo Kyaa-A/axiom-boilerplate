@@ -26,7 +26,7 @@ This boilerplate implements a clean, layered architecture optimized for AI-first
 │  │  ┌────────────────────────────────────────────────┐  │  │
 │  │  │         AI Orchestration (LangChain)           │  │  │
 │  │  │  ┌──────────┐ ┌──────────┐ ┌──────────────┐   │  │  │
-│  │  │  │ Cerebras │ │ Voyage   │ │   Qdrant     │   │  │  │
+│  │  │  │ Cerebras │ │ Voyage   │ │   Weaviate     │   │  │  │
 │  │  │  │   LLM    │ │   AI     │ │ Vector Store │   │  │  │
 │  │  │  └──────────┘ └──────────┘ └──────────────┘   │  │  │
 │  │  └────────────────────────────────────────────────┘  │  │
@@ -39,7 +39,7 @@ This boilerplate implements a clean, layered architecture optimized for AI-first
 ┌─────────────────────────────────────────────────────────────┐
 │                      Data Layer                              │
 │  ┌──────────────┐  ┌──────────────┐  ┌──────────────────┐  │
-│  │  PostgreSQL  │  │    Redis     │  │      Qdrant      │  │
+│  │  PostgreSQL  │  │    Redis     │  │      Weaviate      │  │
 │  │ (Structured) │  │(Cache/Queue) │  │(Vector Embeddings│  │
 │  └──────────────┘  └──────────────┘  └──────────────────┘  │
 └─────────────────────────────────────────────────────────────┘
@@ -74,7 +74,7 @@ Backend API Endpoint
 LangChain Orchestration Layer
     ↓
 ┌─────────────┬─────────────┬─────────────┐
-│  Cerebras   │  Voyage AI  │   Qdrant    │
+│  Cerebras   │  Voyage AI  │   Weaviate    │
 │    (LLM)    │ (Embeddings)│  (Vectors)  │
 └─────────────┴─────────────┴─────────────┘
 ```
@@ -87,14 +87,14 @@ LangChain Orchestration Layer
 - Application state
 - Transactional data
 
-**Qdrant** (Vector)
+**Weaviate** (Vector)
 - Text embeddings
 - Semantic search
 - AI memory/context
 
 **Why Separate?**
 - Optimized for different access patterns
-- Qdrant excels at similarity search
+- Weaviate excels at similarity search
 - PostgreSQL handles structured queries
 - Independent scaling
 
@@ -107,7 +107,7 @@ LangChain Orchestration Layer
 **Backend State**
 - **PostgreSQL**: Persistent data
 - **Redis**: Cache + session + queue
-- **Qdrant**: Vector embeddings
+- **Weaviate**: Vector embeddings
 
 ## Layer Responsibilities
 
@@ -180,7 +180,7 @@ LangChain Orchestration Layer
 3. Backend API endpoint receives request
 4. RAG Chain orchestrates:
    a. Generate query embedding (Voyage AI)
-   b. Search similar vectors (Qdrant)
+   b. Search similar vectors (Weaviate)
    c. Retrieve context from results
    d. Generate response (Cerebras LLM)
 5. Response returned to frontend
@@ -198,7 +198,7 @@ LangChain Orchestration Layer
    c. Triggers embedding generation
 4. Embedding Chain:
    a. Generate embedding (Voyage AI)
-   b. Store in Qdrant
+   b. Store in Weaviate
    c. Update PostgreSQL with vector reference
 5. Response returned with document ID
 6. Frontend updates UI
@@ -211,7 +211,7 @@ LangChain Orchestration Layer
 2. Celery worker picks up task
 3. Worker processes batch:
    a. Generate embeddings
-   b. Store in Qdrant
+   b. Store in Weaviate
    c. Update PostgreSQL
 4. Task completion stored in Redis
 5. Frontend polls for status or receives webhook
@@ -277,7 +277,7 @@ Access granted/denied
 | Task Queue | Celery | Mature, reliable, distributed |
 | LLM Provider | Cerebras | Fast inference, cost-effective |
 | Embeddings | Voyage AI | High-quality embeddings |
-| Vector DB | Qdrant | Performance, features, Rust-based |
+| Vector DB | Weaviate | Scalable search, filtering, ecosystem |
 | Cache/Queue | Redis | Speed, versatility, reliability |
 
 ## Deployment Architecture
@@ -290,7 +290,7 @@ Access granted/denied
 ### Production
 - **Frontend**: Vercel (or similar CDN)
 - **Backend**: Azure App Service / Container Instances
-- **Databases**: Managed services (Azure PostgreSQL, Qdrant Cloud)
+- **Databases**: Managed services (Azure PostgreSQL, Weaviate Cloud)
 - **Redis**: Azure Cache for Redis
 - **Workers**: Separate container instances
 

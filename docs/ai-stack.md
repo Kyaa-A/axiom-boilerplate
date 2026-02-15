@@ -6,7 +6,7 @@ This boilerplate implements a production-ready AI stack with clear separation of
 
 - **Cerebras**: Text generation (LLM)
 - **Voyage AI**: Text embeddings
-- **Qdrant**: Vector storage and similarity search
+- **Weaviate**: Vector storage and similarity search
 - **LangChain**: Orchestration layer
 
 ## Architecture Principles
@@ -31,7 +31,7 @@ Each AI service has ONE job:
 └──────────────────────────────────────────────────────┘
 
 ┌──────────────────────────────────────────────────────┐
-│ Qdrant                                               │
+│ Weaviate                                               │
 │ - Vector storage                                     │
 │ - Similarity search                                  │
 │ - Metadata filtering                                 │
@@ -75,7 +75,7 @@ LangChain Chain (app/services/ai/chains/base_chain.py)
       ↓
 ┌──────────────┬──────────────┬──────────────┐
 │   LLM Client │  Embeddings  │ Vector Store │
-│   (Cerebras) │ (Voyage AI)  │   (Qdrant)   │
+│   (Cerebras) │ (Voyage AI)  │   (Weaviate)   │
 └──────────────┴──────────────┴──────────────┘
 ```
 
@@ -121,7 +121,7 @@ async for chunk in cerebras_client.stream_generate(
 
 **When NOT to Use**:
 - Generating embeddings (use Voyage AI)
-- Vector search (use Qdrant)
+- Vector search (use Weaviate)
 
 ### Voyage AI (Embeddings)
 
@@ -161,19 +161,19 @@ embeddings = await voyage_client.embed_batch(
 - `"query"`: For search queries (optimized for retrieval)
 
 **When to Use**:
-- Before storing text in Qdrant
-- Before searching Qdrant
+- Before storing text in Weaviate
+- Before searching Weaviate
 - Semantic similarity calculations
 
 **When NOT to Use**:
 - Text generation (use Cerebras)
-- Direct text search (use embeddings + Qdrant)
+- Direct text search (use embeddings + Weaviate)
 
-### Qdrant (Vector Database)
+### Weaviate (Vector Database)
 
 **Purpose**: Store and search vector embeddings
 
-**Implementation**: `backend/app/services/ai/vector_store/qdrant_client.py`
+**Implementation**: `backend/app/services/ai/vector_store/weaviate_client.py`
 
 **Features**:
 - Cosine similarity search
@@ -183,10 +183,10 @@ embeddings = await voyage_client.embed_batch(
 
 **Usage Example**:
 ```python
-from app.services.ai.vector_store.qdrant_store import qdrant_store
+from app.services.ai.vector_store.weaviate_client import weaviate_store
 
 # Store embedding
-vector_id = await qdrant_store.store_embedding(
+vector_id = await weaviate_store.store_embedding(
     vector=embedding_vector,
     metadata={
         "text": "Original text",
@@ -196,7 +196,7 @@ vector_id = await qdrant_store.store_embedding(
 )
 
 # Search similar vectors
-results = await qdrant_store.search_similar(
+results = await weaviate_store.search_similar(
     query_vector=query_embedding,
     limit=5,
     score_threshold=0.7
@@ -251,13 +251,13 @@ result = await rag_chain.run(
 
 1. **RAG Chain** (`RAGChain`)
    - Converts query to embedding
-   - Searches Qdrant
+   - Searches Weaviate
    - Retrieves context
    - Generates response with Cerebras
 
 2. **Embedding Chain** (`EmbeddingChain`)
    - Generates embeddings for documents
-   - Stores in Qdrant
+   - Stores in Weaviate
    - Returns vector IDs
 
 **Creating Custom Chains**:
@@ -269,7 +269,7 @@ class CustomChain(BaseChain):
         # Access services via:
         # - self.llm_client (Cerebras)
         # - self.embedding_client (Voyage AI)
-        # - self.vector_store (Qdrant)
+        # - self.vector_store (Weaviate)
 
         # Implement your workflow
         pass
@@ -292,7 +292,7 @@ With RAG:
 User: "What's our refund policy?"
 System:
   1. Embeds query
-  2. Finds relevant docs in Qdrant
+  2. Finds relevant docs in Weaviate
   3. Passes docs as context to LLM
 LLM: "According to your policy document, refunds are..."
 ```
@@ -311,7 +311,7 @@ LLM: "According to your policy document, refunds are..."
 └─────────────────────────────────────────────────────────┘
                         ↓
 ┌─────────────────────────────────────────────────────────┐
-│ 3. Search Similar Vectors (Qdrant)                     │
+│ 3. Search Similar Vectors (Weaviate)                     │
 │    Find top 5 most similar document embeddings          │
 └─────────────────────────────────────────────────────────┘
                         ↓
@@ -354,8 +354,8 @@ document = await document_repo.create(document_data)
 # 3. Generate embedding
 embedding = await voyage_client.embed_text(document.content)
 
-# 4. Store in Qdrant (vector data)
-vector_id = await qdrant_store.store_embedding(
+# 4. Store in Weaviate (vector data)
+vector_id = await weaviate_store.store_embedding(
     vector=embedding,
     metadata={
         "text": document.content,
@@ -364,7 +364,7 @@ vector_id = await qdrant_store.store_embedding(
     }
 )
 
-# 5. Link PostgreSQL record to Qdrant vector
+# 5. Link PostgreSQL record to Weaviate vector
 await document_repo.update_vector_id(document.id, vector_id)
 ```
 
@@ -377,8 +377,8 @@ query = "What features does the product have?"
 # 2. Generate query embedding
 query_embedding = await voyage_client.embed_query(query)
 
-# 3. Search Qdrant
-results = await qdrant_store.search_similar(
+# 3. Search Weaviate
+results = await weaviate_store.search_similar(
     query_vector=query_embedding,
     limit=5,
     score_threshold=0.7
@@ -412,7 +412,10 @@ response = await cerebras_client.generate(...)
 @router.post("/query")
 async def query(query: str):
     embedding = voyage_client.embed_query(query)
-    results = qdrant_store.search(embedding)
+    results = await weaviate_store.search_similar(
+        query_vector=embedding,
+        limit=5,
+    )
     # ... more logic
 
 # ✅ Use service layer
@@ -483,10 +486,11 @@ VOYAGE_API_KEY=your-key
 VOYAGE_MODEL=voyage-2
 VOYAGE_EMBEDDING_DIMENSION=1024
 
-# Qdrant
-QDRANT_HOST=localhost
-QDRANT_PORT=6333
-QDRANT_COLLECTION_NAME=embeddings
+# Weaviate
+WEAVIATE_URL=http://localhost:8080
+WEAVIATE_API_KEY=
+WEAVIATE_CLASS_NAME=EmbeddingRecord
+WEAVIATE_TIMEOUT_SECONDS=30
 ```
 
 ## Testing AI Services
@@ -505,10 +509,10 @@ async def test_embeddings():
     embedding = await voyage_client.embed_text("test")
     assert len(embedding) == 1024  # Default dimension
 
-# Test Qdrant
+# Test Weaviate
 async def test_vector_store():
-    await qdrant_store.ensure_collection()
-    vector_id = await qdrant_store.store_embedding(
+    await weaviate_store.ensure_collection()
+    vector_id = await weaviate_store.store_embedding(
         vector=[0.1] * 1024,
         metadata={"test": "data"}
     )
@@ -548,14 +552,14 @@ Common chain patterns:
 Track these metrics:
 - Token usage (Cerebras)
 - Embedding generation count (Voyage AI)
-- Vector search latency (Qdrant)
+- Vector search latency (Weaviate)
 - Cache hit rate (Redis)
 - RAG response time (end-to-end)
 
 ## Troubleshooting
 
-**Issue**: Embeddings not found in Qdrant
-- Check if collection exists: `await qdrant_store.ensure_collection()`
+**Issue**: Embeddings not found in Weaviate
+- Check if collection exists: `await weaviate_store.ensure_collection()`
 - Verify embedding dimension matches collection config
 
 **Issue**: Poor RAG results
@@ -568,4 +572,4 @@ Track these metrics:
 - Enable caching for embeddings
 - Use streaming for LLM responses
 - Batch embed operations
-- Check Qdrant index settings
+- Check Weaviate index settings

@@ -38,11 +38,11 @@ class Settings(BaseSettings):
     CELERY_BROKER_URL: str = Field(default="redis://localhost:6379/1", env="CELERY_BROKER_URL")
     CELERY_RESULT_BACKEND: str = Field(default="redis://localhost:6379/2", env="CELERY_RESULT_BACKEND")
 
-    # Qdrant Vector Database
-    QDRANT_HOST: str = Field(default="localhost", env="QDRANT_HOST")
-    QDRANT_PORT: int = Field(default=6333, env="QDRANT_PORT")
-    QDRANT_API_KEY: Optional[str] = Field(default=None, env="QDRANT_API_KEY")
-    QDRANT_COLLECTION_NAME: str = Field(default="embeddings", env="QDRANT_COLLECTION_NAME")
+    # Weaviate Vector Database
+    WEAVIATE_URL: str = Field(default="http://localhost:8080", env="WEAVIATE_URL")
+    WEAVIATE_API_KEY: Optional[str] = Field(default=None, env="WEAVIATE_API_KEY")
+    WEAVIATE_CLASS_NAME: str = Field(default="EmbeddingRecord", env="WEAVIATE_CLASS_NAME")
+    WEAVIATE_TIMEOUT_SECONDS: int = Field(default=30, env="WEAVIATE_TIMEOUT_SECONDS")
 
     # AI Providers
     CEREBRAS_API_KEY: str = Field(..., env="CEREBRAS_API_KEY")

@@ -32,7 +32,7 @@ async def create_document(
     Workflow:
     1. Store document in PostgreSQL (structured data)
     2. Generate embedding via Voyage AI
-    3. Store embedding in Qdrant (vector data)
+    3. Store embedding in Weaviate (vector data)
     4. Update document with vector reference
     """
     repo = DocumentRepository(db)
@@ -136,7 +136,7 @@ async def delete_document(
             detail="Document not found",
         )
 
-    # TODO: Delete vector from Qdrant
+    # TODO: Delete vector from Weaviate
     # This should be done via a background task
 
     return None

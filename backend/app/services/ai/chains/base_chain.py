@@ -1,13 +1,13 @@
 """
 LangChain base chain setup.
-This orchestrates AI services (Cerebras LLM + Voyage embeddings + Qdrant vectors).
+This orchestrates AI services (Cerebras LLM + Voyage embeddings + Weaviate vectors).
 """
 from typing import List, Dict, Any, Optional
 from abc import ABC, abstractmethod
 
 from app.services.ai.llm.cerebras_client import cerebras_client
 from app.services.ai.embeddings.voyage_client import voyage_client
-from app.services.ai.vector_store.qdrant_client import qdrant_store
+from app.services.ai.vector_store.weaviate_client import weaviate_store
 from app.core.logging import get_logger
 
 logger = get_logger(__name__)
@@ -20,13 +20,13 @@ class BaseChain(ABC):
     Provides access to:
     - LLM generation (Cerebras)
     - Embeddings (Voyage AI)
-    - Vector storage (Qdrant)
+    - Vector storage (Weaviate)
     """
 
     def __init__(self):
         self.llm_client = cerebras_client
         self.embedding_client = voyage_client
-        self.vector_store = qdrant_store
+        self.vector_store = weaviate_store
         self.logger = get_logger(self.__class__.__name__)
 
     @abstractmethod
@@ -41,7 +41,7 @@ class RAGChain(BaseChain):
 
     Workflow:
     1. Convert user query to embedding (Voyage AI)
-    2. Search similar vectors (Qdrant)
+    2. Search similar vectors (Weaviate)
     3. Retrieve context from results
     4. Generate response with context (Cerebras)
     """
@@ -126,7 +126,7 @@ class EmbeddingChain(BaseChain):
 
     Workflow:
     1. Generate embeddings for documents (Voyage AI)
-    2. Store in vector database (Qdrant)
+    2. Store in vector database (Weaviate)
     """
 
     async def run(

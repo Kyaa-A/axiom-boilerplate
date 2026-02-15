@@ -109,7 +109,7 @@ def sync_to_n8n(event_type: str, data: Dict[str, Any]) -> bool:
 @shared_task(name="tasks.cleanup_old_vectors")
 def cleanup_old_vectors(days_old: int = 30) -> int:
     """
-    Clean up old vectors from Qdrant that are no longer referenced.
+    Clean up old vectors from Weaviate that are no longer referenced.
 
     Args:
         days_old: Delete vectors older than this many days

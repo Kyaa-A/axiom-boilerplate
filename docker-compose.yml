@@ -1,5 +1,3 @@
-version: '3.8'
-
 services:
   # PostgreSQL Database
   postgres:
@@ -10,7 +8,7 @@ services:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
     ports:
-      - "5432:5432"
+      - "${POSTGRES_PORT:-5432}:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
     healthcheck:
@@ -24,7 +22,7 @@ services:
     image: redis:7-alpine
     container_name: ai-boilerplate-redis
     ports:
-      - "6379:6379"
+      - "${REDIS_PORT:-6379}:6379"
     volumes:
       - redis_data:/data
     healthcheck:
@@ -33,17 +31,24 @@ services:
       timeout: 5s
       retries: 5
 
-  # Qdrant Vector Database
-  qdrant:
-    image: qdrant/qdrant:latest
-    container_name: ai-boilerplate-qdrant
+  # Weaviate Vector Database
+  weaviate:
+    image: semitechnologies/weaviate:1.25.6
+    container_name: ai-boilerplate-weaviate
+    environment:
+      QUERY_DEFAULTS_LIMIT: 25
+      AUTHENTICATION_ANONYMOUS_ACCESS_ENABLED: "true"
+      PERSISTENCE_DATA_PATH: "/var/lib/weaviate"
+      DEFAULT_VECTORIZER_MODULE: "none"
+      ENABLE_MODULES: ""
+      CLUSTER_HOSTNAME: "node1"
     ports:
-      - "6333:6333"
-      - "6334:6334"
+      - "${WEAVIATE_HTTP_PORT:-8080}:8080"
+      - "${WEAVIATE_GRPC_PORT:-50051}:50051"
     volumes:
-      - qdrant_data:/qdrant/storage
+      - weaviate_data:/var/lib/weaviate
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:6333/health"]
+      test: ["CMD", "wget", "--spider", "-q", "http://localhost:8080/v1/.well-known/ready"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -55,7 +60,7 @@ services:
       dockerfile: Dockerfile
     container_name: ai-boilerplate-backend
     ports:
-      - "8000:8000"
+      - "${BACKEND_PORT:-8000}:8000"
     env_file:
       - ./backend/.env
     environment:
@@ -63,14 +68,13 @@ services:
       REDIS_URL: redis://redis:6379/0
       CELERY_BROKER_URL: redis://redis:6379/1
       CELERY_RESULT_BACKEND: redis://redis:6379/2
-      QDRANT_HOST: qdrant
-      QDRANT_PORT: 6333
+      WEAVIATE_URL: http://weaviate:8080
     depends_on:
       postgres:
         condition: service_healthy
       redis:
         condition: service_healthy
-      qdrant:
+      weaviate:
         condition: service_healthy
     volumes:
       - ./backend:/app
@@ -89,14 +93,13 @@ services:
       REDIS_URL: redis://redis:6379/0
       CELERY_BROKER_URL: redis://redis:6379/1
       CELERY_RESULT_BACKEND: redis://redis:6379/2
-      QDRANT_HOST: qdrant
-      QDRANT_PORT: 6333
+      WEAVIATE_URL: http://weaviate:8080
     depends_on:
       postgres:
         condition: service_healthy
       redis:
         condition: service_healthy
-      qdrant:
+      weaviate:
         condition: service_healthy
     volumes:
       - ./backend:/app
@@ -110,7 +113,7 @@ services:
       target: development
     container_name: ai-boilerplate-frontend
     ports:
-      - "3000:3000"
+      - "${FRONTEND_PORT:-3000}:3000"
     env_file:
       - ./frontend/.env
     environment:
@@ -125,4 +128,4 @@ services:
 volumes:
   postgres_data:
   redis_data:
-  qdrant_data:
+  weaviate_data:

@@ -19,7 +19,7 @@ async def query_documents(query_data: QueryRequest):
 
     Workflow:
     1. Convert query to embedding (Voyage AI)
-    2. Search similar vectors (Qdrant)
+    2. Search similar vectors (Weaviate)
     3. Generate response with context (Cerebras LLM)
 
     This is the ONLY way frontend should access AI capabilities.

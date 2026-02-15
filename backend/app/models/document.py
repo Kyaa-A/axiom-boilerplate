@@ -1,6 +1,6 @@
 """
 Document model for storing structured data.
-Separate from vector embeddings stored in Qdrant.
+Separate from vector embeddings stored in Weaviate.
 """
 from datetime import datetime
 from sqlalchemy import Column, String, Text, DateTime, Integer
@@ -15,7 +15,7 @@ class Document(Base):
     Document model for PostgreSQL.
 
     Note: This stores structured metadata.
-    Embeddings are stored separately in Qdrant.
+    Embeddings are stored separately in Weaviate.
     """
 
     __tablename__ = "documents"
@@ -29,7 +29,7 @@ class Document(Base):
     title = Column(String(500), nullable=False, index=True)
     content = Column(Text, nullable=False)
     source = Column(String(255), nullable=True)
-    vector_id = Column(String(255), nullable=True, index=True)  # Reference to Qdrant vector
+    vector_id = Column(String(255), nullable=True, index=True)  # Reference to Weaviate vector
     created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
     updated_at = Column(
         DateTime,

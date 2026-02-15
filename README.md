@@ -29,12 +29,12 @@ A scalable, production-ready full-stack boilerplate for building AI-first applic
 │              Python + SQLAlchemy + Celery                │
 │  ┌────────────────────────────────────────────────────┐ │
 │  │         AI Orchestration (LangChain)               │ │
-│  │  Cerebras + Voyage AI + Qdrant                     │ │
+│  │  Cerebras + Voyage AI + Weaviate                   │ │
 │  └────────────────────────────────────────────────────┘ │
 └─────────────────────────────────────────────────────────┘
                           ▼
 ┌──────────────┬──────────────┬──────────────┬────────────┐
-│  PostgreSQL  │    Redis     │   Qdrant     │   Celery   │
+│  PostgreSQL  │    Redis     │  Weaviate    │   Celery   │
 │ (Structured) │(Cache/Queue) │  (Vectors)   │ (Workers)  │
 └──────────────┴──────────────┴──────────────┴────────────┘
 ```
@@ -42,7 +42,8 @@ A scalable, production-ready full-stack boilerplate for building AI-first applic
 ## 📚 Documentation
 
 - **[Architecture Overview](docs/architecture.md)**: System design, layers, data flow
-- **[AI Stack Guide](docs/ai-stack.md)**: LangChain, Cerebras, Voyage AI, Qdrant
+- **[AI Stack Guide](docs/ai-stack.md)**: LangChain, Cerebras, Voyage AI, Weaviate
+- **[Troubleshooting](docs/troubleshooting.md)**: Common local setup and runtime issues
 
 ## 🛠️ Tech Stack
 
@@ -64,7 +65,7 @@ A scalable, production-ready full-stack boilerplate for building AI-first applic
 - **LangChain** (Orchestration)
 - **Cerebras** (LLM)
 - **Voyage AI** (Embeddings)
-- **Qdrant** (Vector DB)
+- **Weaviate** (Vector DB)
 - **PostgreSQL** (Relational DB)
 - **Supabase** (Auth + Storage)
 
@@ -122,13 +123,18 @@ docker-compose up -d
 docker-compose logs -f
 ```
 
+If you have local port conflicts, override host ports at runtime, for example:
+```bash
+REDIS_PORT=16379 docker compose up -d
+```
+
 Services will be available at:
 - Frontend: http://localhost:3000
 - Backend API: http://localhost:8000
 - API Docs: http://localhost:8000/docs
 - PostgreSQL: localhost:5432
 - Redis: localhost:6379
-- Qdrant: http://localhost:6333
+- Weaviate: http://localhost:8080
 
 ### 4. Initialize Database
 
@@ -155,7 +161,7 @@ axiom-boilerplate/
 │   │   │   └── ai/             # AI services
 │   │   │       ├── llm/        # Cerebras client
 │   │   │       ├── embeddings/ # Voyage AI client
-│   │   │       ├── vector_store/ # Qdrant client
+│   │   │       ├── vector_store/ # Weaviate client
 │   │   │       └── chains/     # LangChain orchestration
 │   │   └── workers/            # Celery tasks
 │   ├── requirements.txt
@@ -198,7 +204,7 @@ axiom-boilerplate/
 
 - **LangChain Orchestration**: All AI operations go through LangChain
 - **RAG Ready**: Retrieval-Augmented Generation out of the box
-- **Vector Search**: Semantic search with Qdrant
+- **Vector Search**: Semantic search with Weaviate
 - **Clean Separation**: Frontend never calls AI services directly
 
 ### State Management
@@ -272,6 +278,10 @@ pytest
 # Frontend tests
 cd frontend
 npm test
+
+# End-to-end smoke test
+cd ..
+./infra/scripts/smoke-test.sh
 ```
 
 ## 📦 Deployment

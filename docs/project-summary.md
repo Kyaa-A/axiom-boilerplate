@@ -44,7 +44,7 @@ axiom-boilerplate/
 │   │   │       ├── embeddings/
 │   │   │       │   └── voyage_client.py       # Text embeddings
 │   │   │       ├── vector_store/
-│   │   │       │   └── qdrant_client.py       # Vector storage
+│   │   │       │   └── weaviate_client.py       # Vector storage
 │   │   │       └── chains/
 │   │   │           └── base_chain.py          # LangChain workflows
 │   │   │
@@ -134,7 +134,7 @@ axiom-boilerplate/
 15. `backend/app/repositories/document_repository.py`
 16. `backend/app/services/ai/llm/cerebras_client.py`
 17. `backend/app/services/ai/embeddings/voyage_client.py`
-18. `backend/app/services/ai/vector_store/qdrant_client.py`
+18. `backend/app/services/ai/vector_store/weaviate_client.py`
 19. `backend/app/services/ai/chains/base_chain.py`
 20. `backend/app/workers/celery_app.py`
 21. `backend/app/workers/tasks.py`
@@ -186,7 +186,7 @@ axiom-boilerplate/
 
 - **llm/cerebras_client.py**: Text generation via Cerebras (OpenAI-compatible API)
 - **embeddings/voyage_client.py**: Text-to-vector conversion via Voyage AI
-- **vector_store/qdrant_client.py**: Vector storage and semantic search
+- **vector_store/weaviate_client.py**: Vector storage and semantic search
 - **chains/base_chain.py**: LangChain orchestration (RAG workflow)
 
 **Key Rule**: Frontend NEVER calls these directly - only through backend API endpoints.
@@ -246,7 +246,7 @@ axiom-boilerplate/
    ↓
 7. RAG Chain orchestrates:
    a. voyage_client.embed_query() → embedding
-   b. qdrant_store.search_similar() → context docs
+   b. weaviate_store.search_similar() → context docs
    c. cerebras_client.generate() → response
    ↓
 8. Response returned to frontend
@@ -271,7 +271,7 @@ axiom-boilerplate/
    ↓
 6. Embedding chain generates vector
    ↓
-7. Vector stored in Qdrant
+7. Vector stored in Weaviate
    ↓
 8. Document updated with vector_id reference
    ↓
@@ -286,7 +286,7 @@ The `docker-compose.yml` orchestrates 6 services:
 
 1. **postgres**: PostgreSQL 16 (structured data)
 2. **redis**: Redis 7 (cache + queue)
-3. **qdrant**: Qdrant (vector embeddings)
+3. **weaviate**: Weaviate (vector embeddings)
 4. **backend**: FastAPI application
 5. **celery_worker**: Background task processor
 6. **frontend**: Next.js application
@@ -340,7 +340,7 @@ This is a **boilerplate foundation**, not a complete product. Intentionally excl
 4. **Access**:
    - Frontend: http://localhost:3000
    - Backend API: http://localhost:8000/docs
-   - Qdrant Dashboard: http://localhost:6333/dashboard
+   - Weaviate API: http://localhost:8080
 
 ## Next Steps
 
@@ -396,7 +396,7 @@ After setup:
 | Celery | Mature distributed task queue |
 | Cerebras | Fast, cost-effective LLM |
 | Voyage AI | High-quality embeddings |
-| Qdrant | Rust-based, performant vectors |
+| Weaviate | Scalable vector search and filtering |
 | PostgreSQL | Proven, reliable, feature-rich |
 | Redis | Fast, versatile, reliable |
 
