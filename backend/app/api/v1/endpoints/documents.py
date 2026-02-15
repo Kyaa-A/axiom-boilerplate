@@ -9,6 +9,7 @@ from uuid import UUID
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.core.auth import get_current_user
 from app.core.database import get_db
 from app.repositories.document_repository import DocumentRepository
 from app.schemas.document import (
@@ -18,7 +19,11 @@ from app.schemas.document import (
 )
 from app.services.ai.chains.base_chain import embedding_chain
 
-router = APIRouter(prefix="/documents", tags=["documents"])
+router = APIRouter(
+    prefix="/documents",
+    tags=["documents"],
+    dependencies=[Depends(get_current_user)],
+)
 
 
 @router.post("/", response_model=DocumentResponse, status_code=status.HTTP_201_CREATED)

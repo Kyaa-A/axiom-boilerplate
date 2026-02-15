@@ -65,8 +65,14 @@ After services are running:
 ./infra/scripts/smoke-test.sh
 ```
 
-By default, the script exits successfully if AI provider keys are missing/invalid and reports that AI-dependent steps were skipped. To require full AI flow success:
+Protected endpoints now require JWT auth. Pass a valid Supabase access token for full API coverage:
 
 ```bash
-STRICT_AI=1 ./infra/scripts/smoke-test.sh
+AUTH_TOKEN=your-jwt ./infra/scripts/smoke-test.sh
+```
+
+By default, the script exits successfully if auth token and/or AI provider keys are missing and reports skipped protected/AI-dependent steps. To require full AI flow success:
+
+```bash
+AUTH_TOKEN=your-jwt STRICT_AI=1 ./infra/scripts/smoke-test.sh
 ```

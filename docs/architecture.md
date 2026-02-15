@@ -298,10 +298,9 @@ Access granted/denied
 
 After setting up this boilerplate:
 
-1. **Authentication**: Implement Supabase auth integration
-2. **Authorization**: Add role-based access control
-3. **Rate Limiting**: Add request rate limits
-4. **Monitoring**: Integrate logging/metrics (e.g., Sentry, Datadog)
-5. **Testing**: Add unit and integration tests
-6. **CI/CD**: Set up GitHub Actions workflows
-7. **Documentation**: Add OpenAPI/Swagger docs
+1. **Authorization**: Add role-based access control
+2. **Rate Limiting**: Add request rate limits
+3. **Monitoring**: Integrate logging/metrics (e.g., Sentry, Datadog)
+4. **Testing**: Add unit and integration tests
+5. **CI/CD**: Set up GitHub Actions workflows
+6. **Documentation**: Add OpenAPI/Swagger docs

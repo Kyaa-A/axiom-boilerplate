@@ -29,6 +29,8 @@ class Settings(BaseSettings):
     SUPABASE_URL: str = Field(..., env="SUPABASE_URL")
     SUPABASE_KEY: str = Field(..., env="SUPABASE_KEY")
     SUPABASE_JWT_SECRET: str = Field(..., env="SUPABASE_JWT_SECRET")
+    SUPABASE_JWT_ALGORITHM: str = Field(default="HS256", env="SUPABASE_JWT_ALGORITHM")
+    SUPABASE_JWT_AUDIENCE: Optional[str] = Field(default=None, env="SUPABASE_JWT_AUDIENCE")
 
     # Redis
     REDIS_URL: str = Field(default="redis://localhost:6379/0", env="REDIS_URL")

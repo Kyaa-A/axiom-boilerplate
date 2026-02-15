@@ -201,6 +201,7 @@ axiom-boilerplate/
 - **RAG Ready**: Retrieval-Augmented Generation out of the box
 - **Vector Search**: Semantic search with Weaviate
 - **Clean Separation**: Frontend never calls AI services directly
+- **Auth Baseline**: Supabase login + JWT-protected backend routes
 
 ### State Management
 
@@ -277,6 +278,9 @@ npm test
 # End-to-end smoke test
 cd ..
 ./infra/scripts/smoke-test.sh
+
+# Full protected + AI flow
+AUTH_TOKEN=your-jwt STRICT_AI=1 ./infra/scripts/smoke-test.sh
 ```
 
 ## 📦 Deployment
@@ -315,12 +319,11 @@ az container create \
 
 After setting up:
 
-1. **Implement Authentication**: Add Supabase auth integration
-2. **Add Features**: Build on this foundation
-3. **Set Up CI/CD**: GitHub Actions workflows
-4. **Add Monitoring**: Integrate logging/metrics
-5. **Write Tests**: Unit and integration tests
-6. **Configure n8n**: External workflow automation
+1. **Add Features**: Build on this foundation
+2. **Set Up CI/CD**: GitHub Actions workflows
+3. **Add Monitoring**: Integrate logging/metrics
+4. **Write Tests**: Unit and integration tests
+5. **Configure n8n**: External workflow automation
 
 ## 📝 Environment Variables
 
@@ -334,6 +337,8 @@ VOYAGE_API_KEY=your-voyage-key
 # Supabase
 SUPABASE_URL=your-supabase-url
 SUPABASE_KEY=your-supabase-key
+SUPABASE_JWT_SECRET=your-supabase-jwt-secret
+SUPABASE_JWT_AUDIENCE=authenticated
 
 # Database
 DATABASE_URL=postgresql+asyncpg://user:pass@host:5432/db
@@ -375,7 +380,7 @@ MIT License - Use freely for any project
 - ✅ Type safety (TypeScript + Pydantic)
 - ✅ API documentation
 - ✅ Environment configuration
-- ⬜ Authentication (Supabase)
+- ✅ Authentication (Supabase)
 - ⬜ Authorization (RBAC)
 - ⬜ Rate limiting
 - ⬜ Monitoring & logging

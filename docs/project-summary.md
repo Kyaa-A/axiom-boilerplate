@@ -311,8 +311,8 @@ All services are networked and dependencies are configured with health checks.
 
 This is a **boilerplate foundation**, not a complete product. Intentionally excluded:
 
-- ❌ Authentication implementation (Supabase integration ready, not implemented)
-- ❌ UI pages/features (shadcn/ui ready, components folder empty)
+- ✅ Baseline authentication is included (Supabase JWT + protected API routes)
+- ❌ Full product UI/features (only minimal auth pages included)
 - ❌ Business logic (service layer ready, no specific features)
 - ❌ Tests (pytest/jest ready, no tests written)
 - ❌ CI/CD pipelines (ready for GitHub Actions)
@@ -346,7 +346,7 @@ This is a **boilerplate foundation**, not a complete product. Intentionally excl
 
 After setup:
 
-1. **Implement auth**: Connect Supabase
+1. **Expand auth**: Add role-based access control and policies
 2. **Build UI**: Add pages and components
 3. **Add features**: Use the foundation to build your product
 4. **Write tests**: Add pytest and jest tests
