@@ -2,12 +2,6 @@
 
 A scalable, production-ready full-stack boilerplate for building AI-first applications with Next.js, FastAPI, and modern AI services.
 
-> **🚀 Quick Start for New Projects**: Simply clone this repository to start a new project:
-> ```bash
-> git clone https://github.com/Kyaa-A/axiom-boilerplate.git your-project-name
-> cd your-project-name
-> ```
-
 ## 🎯 Project Goals
 
 - **Clean Architecture**: Separation of concerns, SOLID principles
@@ -117,10 +111,10 @@ cp .env.example .env
 
 ```bash
 # Start all services with Docker Compose
-docker-compose up -d
+docker compose up -d
 
 # Check logs
-docker-compose logs -f
+docker compose logs -f
 ```
 
 If you have local port conflicts, override host ports at runtime, for example:
@@ -140,7 +134,7 @@ Services will be available at:
 
 ```bash
 # Run migrations (if using Alembic)
-docker-compose exec backend alembic upgrade head
+docker compose exec backend alembic upgrade head
 ```
 
 ## 📁 Project Structure
