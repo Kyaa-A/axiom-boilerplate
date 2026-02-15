@@ -187,12 +187,13 @@ axiom-boilerplate/
 │
 ├── infra/
 │   ├── docker/                 # Docker configs
-│   ├── scripts/                # Deployment scripts
+│   ├── scripts/                # Setup, deployment, smoke tests
 │   └── configs/                # Infrastructure configs
 │
 ├── docs/
 │   ├── architecture.md         # Architecture guide
-│   └── ai-stack.md             # AI stack guide
+│   ├── ai-stack.md             # AI stack guide
+│   └── troubleshooting.md      # Common setup/runtime fixes
 │
 ├── docker-compose.yml
 └── README.md
