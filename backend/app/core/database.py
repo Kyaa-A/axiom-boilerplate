@@ -4,6 +4,7 @@ Uses SQLAlchemy with PostgreSQL.
 """
 from typing import AsyncGenerator
 
+from sqlalchemy import text
 from sqlalchemy.ext.asyncio import (
     AsyncSession,
     async_sessionmaker,
@@ -59,6 +60,32 @@ async def init_db() -> None:
     """Initialize database tables."""
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
+        # Lightweight compatibility migration for RBAC ownership.
+        await conn.execute(
+            text(
+                "ALTER TABLE documents "
+                "ADD COLUMN IF NOT EXISTS owner_id VARCHAR(128)"
+            )
+        )
+        await conn.execute(
+            text(
+                "UPDATE documents "
+                "SET owner_id = 'legacy-owner' "
+                "WHERE owner_id IS NULL"
+            )
+        )
+        await conn.execute(
+            text(
+                "CREATE INDEX IF NOT EXISTS ix_documents_owner_id "
+                "ON documents (owner_id)"
+            )
+        )
+        await conn.execute(
+            text(
+                "ALTER TABLE documents "
+                "ALTER COLUMN owner_id SET NOT NULL"
+            )
+        )
 
 
 async def close_db() -> None:

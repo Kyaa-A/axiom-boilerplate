@@ -65,6 +65,33 @@ class Settings(BaseSettings):
     ALGORITHM: str = "HS256"
     ACCESS_TOKEN_EXPIRE_MINUTES: int = Field(default=30, env="ACCESS_TOKEN_EXPIRE_MINUTES")
 
+    # Rate Limiting
+    RATE_LIMIT_ENABLED: bool = Field(default=True, env="RATE_LIMIT_ENABLED")
+    RATE_LIMIT_AUTH_REQUESTS_PER_WINDOW: int = Field(
+        default=60,
+        env="RATE_LIMIT_AUTH_REQUESTS_PER_WINDOW",
+    )
+    RATE_LIMIT_AUTH_WINDOW_SECONDS: int = Field(
+        default=60,
+        env="RATE_LIMIT_AUTH_WINDOW_SECONDS",
+    )
+    RATE_LIMIT_AI_REQUESTS_PER_WINDOW: int = Field(
+        default=30,
+        env="RATE_LIMIT_AI_REQUESTS_PER_WINDOW",
+    )
+    RATE_LIMIT_AI_WINDOW_SECONDS: int = Field(
+        default=60,
+        env="RATE_LIMIT_AI_WINDOW_SECONDS",
+    )
+    RATE_LIMIT_DOCUMENTS_REQUESTS_PER_WINDOW: int = Field(
+        default=60,
+        env="RATE_LIMIT_DOCUMENTS_REQUESTS_PER_WINDOW",
+    )
+    RATE_LIMIT_DOCUMENTS_WINDOW_SECONDS: int = Field(
+        default=60,
+        env="RATE_LIMIT_DOCUMENTS_WINDOW_SECONDS",
+    )
+
     # Logging
     LOG_LEVEL: str = Field(default="INFO", env="LOG_LEVEL")
     LOG_FORMAT: str = "json"  # json or text

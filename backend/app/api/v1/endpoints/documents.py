@@ -3,14 +3,15 @@ Document endpoints demonstrating the architecture.
 Shows proper separation: API -> Repository -> Database
                         API -> AI Service -> Vector Store
 """
-from typing import List
+from typing import List, Optional
 from uuid import UUID
 
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.core.auth import get_current_user
+from app.core.auth import AuthUser, get_current_user
 from app.core.database import get_db
+from app.core.rate_limit import documents_rate_limit
 from app.repositories.document_repository import DocumentRepository
 from app.schemas.document import (
     DocumentCreate,
@@ -22,13 +23,19 @@ from app.services.ai.chains.base_chain import embedding_chain
 router = APIRouter(
     prefix="/documents",
     tags=["documents"],
-    dependencies=[Depends(get_current_user)],
+    dependencies=[Depends(get_current_user), Depends(documents_rate_limit)],
 )
+
+
+def _owner_scope(current_user: AuthUser) -> Optional[str]:
+    """Admin can access all documents; users are scoped to their own."""
+    return None if current_user.is_admin else current_user.id
 
 
 @router.post("/", response_model=DocumentResponse, status_code=status.HTTP_201_CREATED)
 async def create_document(
     document_data: DocumentCreate,
+    current_user: AuthUser = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ):
     """
@@ -43,7 +50,7 @@ async def create_document(
     repo = DocumentRepository(db)
 
     # Create document in PostgreSQL
-    document = await repo.create(document_data)
+    document = await repo.create(document_data, owner_id=current_user.id)
 
     # Generate and store embedding
     try:
@@ -61,7 +68,11 @@ async def create_document(
 
         # Update document with vector reference
         if vector_ids:
-            await repo.update_vector_id(document.id, vector_ids[0])
+            await repo.update_vector_id(
+                document.id,
+                vector_ids[0],
+                owner_id=current_user.id,
+            )
 
     except Exception as e:
         # Document is created, but embedding failed
@@ -77,11 +88,15 @@ async def create_document(
 @router.get("/{document_id}", response_model=DocumentResponse)
 async def get_document(
     document_id: UUID,
+    current_user: AuthUser = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ):
     """Get a document by ID."""
     repo = DocumentRepository(db)
-    document = await repo.get_by_id(document_id)
+    document = await repo.get_by_id(
+        document_id,
+        owner_id=_owner_scope(current_user),
+    )
 
     if not document:
         raise HTTPException(
@@ -96,11 +111,16 @@ async def get_document(
 async def list_documents(
     skip: int = 0,
     limit: int = 100,
+    current_user: AuthUser = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ):
     """List all documents with pagination."""
     repo = DocumentRepository(db)
-    documents = await repo.get_all(skip=skip, limit=limit)
+    documents = await repo.get_all(
+        skip=skip,
+        limit=limit,
+        owner_id=_owner_scope(current_user),
+    )
     return documents
 
 
@@ -108,11 +128,16 @@ async def list_documents(
 async def update_document(
     document_id: UUID,
     document_data: DocumentUpdate,
+    current_user: AuthUser = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ):
     """Update a document."""
     repo = DocumentRepository(db)
-    document = await repo.update(document_id, document_data)
+    document = await repo.update(
+        document_id,
+        document_data,
+        owner_id=_owner_scope(current_user),
+    )
 
     if not document:
         raise HTTPException(
@@ -129,11 +154,15 @@ async def update_document(
 @router.delete("/{document_id}", status_code=status.HTTP_204_NO_CONTENT)
 async def delete_document(
     document_id: UUID,
+    current_user: AuthUser = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ):
     """Delete a document."""
     repo = DocumentRepository(db)
-    deleted = await repo.delete(document_id)
+    deleted = await repo.delete(
+        document_id,
+        owner_id=_owner_scope(current_user),
+    )
 
     if not deleted:
         raise HTTPException(

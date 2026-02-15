@@ -2,10 +2,10 @@
 Document repository for database operations.
 Implements repository pattern for clean separation.
 """
-from typing import List, Optional
+from typing import Any, List, Optional
 from uuid import UUID
 
-from sqlalchemy import select, update, delete
+from sqlalchemy import delete, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.models.document import Document
@@ -21,38 +21,64 @@ class DocumentRepository:
     def __init__(self, db: AsyncSession):
         self.db = db
 
-    async def create(self, document_data: DocumentCreate) -> Document:
+    @staticmethod
+    def _apply_owner_scope(statement: Any, owner_id: Optional[str]) -> Any:
+        """Restrict statements to an owner when scope is provided."""
+        if owner_id:
+            return statement.where(Document.owner_id == owner_id)
+        return statement
+
+    async def create(self, document_data: DocumentCreate, owner_id: str) -> Document:
         """Create a new document."""
-        document = Document(**document_data.model_dump())
+        document = Document(**document_data.model_dump(), owner_id=owner_id)
         self.db.add(document)
         await self.db.flush()
         await self.db.refresh(document)
 
-        logger.info("Document created", document_id=str(document.id))
+        logger.info(
+            "Document created",
+            document_id=str(document.id),
+            owner_id=owner_id,
+        )
         return document
 
-    async def get_by_id(self, document_id: UUID) -> Optional[Document]:
+    async def get_by_id(
+        self,
+        document_id: UUID,
+        owner_id: Optional[str] = None,
+    ) -> Optional[Document]:
         """Get document by ID."""
+        statement = select(Document).where(Document.id == document_id)
+        statement = self._apply_owner_scope(statement, owner_id)
         result = await self.db.execute(
-            select(Document).where(Document.id == document_id)
+            statement
         )
         return result.scalar_one_or_none()
 
     async def get_all(
-        self, skip: int = 0, limit: int = 100
+        self,
+        skip: int = 0,
+        limit: int = 100,
+        owner_id: Optional[str] = None,
     ) -> List[Document]:
         """Get all documents with pagination."""
+        statement = select(Document)
+        statement = self._apply_owner_scope(statement, owner_id)
+        statement = statement.offset(skip).limit(limit).order_by(Document.created_at.desc())
         result = await self.db.execute(
-            select(Document).offset(skip).limit(limit).order_by(Document.created_at.desc())
+            statement
         )
         return list(result.scalars().all())
 
     async def update(
-        self, document_id: UUID, document_data: DocumentUpdate
+        self,
+        document_id: UUID,
+        document_data: DocumentUpdate,
+        owner_id: Optional[str] = None,
     ) -> Optional[Document]:
         """Update a document."""
         # Get existing document
-        document = await self.get_by_id(document_id)
+        document = await self.get_by_id(document_id, owner_id=owner_id)
         if not document:
             return None
 
@@ -64,26 +90,35 @@ class DocumentRepository:
         await self.db.flush()
         await self.db.refresh(document)
 
-        logger.info("Document updated", document_id=str(document_id))
+        logger.info(
+            "Document updated",
+            document_id=str(document_id),
+            owner_id=document.owner_id,
+        )
         return document
 
-    async def delete(self, document_id: UUID) -> bool:
+    async def delete(self, document_id: UUID, owner_id: Optional[str] = None) -> bool:
         """Delete a document."""
+        statement = delete(Document).where(Document.id == document_id)
+        statement = self._apply_owner_scope(statement, owner_id)
         result = await self.db.execute(
-            delete(Document).where(Document.id == document_id)
+            statement
         )
 
         deleted = result.rowcount > 0
         if deleted:
-            logger.info("Document deleted", document_id=str(document_id))
+            logger.info("Document deleted", document_id=str(document_id), owner_id=owner_id)
 
         return deleted
 
     async def update_vector_id(
-        self, document_id: UUID, vector_id: str
+        self,
+        document_id: UUID,
+        vector_id: str,
+        owner_id: Optional[str] = None,
     ) -> Optional[Document]:
         """Update the vector ID reference for a document."""
-        document = await self.get_by_id(document_id)
+        document = await self.get_by_id(document_id, owner_id=owner_id)
         if not document:
             return None
 
@@ -94,6 +129,7 @@ class DocumentRepository:
         logger.info(
             "Document vector ID updated",
             document_id=str(document_id),
+            owner_id=document.owner_id,
             vector_id=vector_id,
         )
         return document

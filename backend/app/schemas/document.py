@@ -33,6 +33,7 @@ class DocumentResponse(DocumentBase):
     """Schema for document responses."""
 
     id: UUID
+    owner_id: str
     vector_id: Optional[str]
     created_at: datetime
     updated_at: datetime

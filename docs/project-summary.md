@@ -311,13 +311,14 @@ All services are networked and dependencies are configured with health checks.
 
 This is a **boilerplate foundation**, not a complete product. Intentionally excluded:
 
-- ✅ Baseline authentication is included (Supabase JWT + protected API routes)
+- ✅ Authentication is included (Supabase JWT + protected API routes)
+- ✅ Authorization is included (RBAC for user/admin access scope)
+- ✅ Rate limiting is included (Redis-backed fixed-window limits)
 - ❌ Full product UI/features (only minimal auth pages included)
 - ❌ Business logic (service layer ready, no specific features)
 - ❌ Tests (pytest/jest ready, no tests written)
 - ❌ CI/CD pipelines (ready for GitHub Actions)
 - ❌ Monitoring/logging integrations (structured logs ready)
-- ❌ Rate limiting (middleware ready)
 - ❌ Database migrations (Alembic ready, no migrations)
 
 **Why?** This is a **foundation** you build upon, not a finished product.
@@ -346,12 +347,11 @@ This is a **boilerplate foundation**, not a complete product. Intentionally excl
 
 After setup:
 
-1. **Expand auth**: Add role-based access control and policies
-2. **Build UI**: Add pages and components
-3. **Add features**: Use the foundation to build your product
-4. **Write tests**: Add pytest and jest tests
-5. **Deploy**: Configure Azure/Vercel deployment
-6. **Monitor**: Add Sentry, Datadog, etc.
+1. **Build UI**: Add pages and components
+2. **Add features**: Use the foundation to build your product
+3. **Write tests**: Add pytest and jest tests
+4. **Deploy**: Configure Azure/Vercel deployment
+5. **Monitor**: Add Sentry, Datadog, etc.
 
 ## Architecture Highlights
 

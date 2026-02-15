@@ -201,7 +201,8 @@ axiom-boilerplate/
 - **RAG Ready**: Retrieval-Augmented Generation out of the box
 - **Vector Search**: Semantic search with Weaviate
 - **Clean Separation**: Frontend never calls AI services directly
-- **Auth Baseline**: Supabase login + JWT-protected backend routes
+- **Auth + RBAC**: Supabase login, JWT validation, user/admin access control
+- **Rate Limiting**: Redis-backed limits on auth, document, and AI endpoints
 
 ### State Management
 
@@ -230,6 +231,7 @@ axiom-boilerplate/
 ```bash
 POST http://localhost:8000/api/v1/ai/query
 Content-Type: application/json
+Authorization: Bearer <supabase-access-token>
 
 {
   "query": "What features does the product have?",
@@ -243,6 +245,7 @@ Content-Type: application/json
 ```bash
 POST http://localhost:8000/api/v1/documents
 Content-Type: application/json
+Authorization: Bearer <supabase-access-token>
 
 {
   "title": "Product Guide",
@@ -256,6 +259,7 @@ Content-Type: application/json
 ```bash
 POST http://localhost:8000/api/v1/ai/generate
 Content-Type: application/json
+Authorization: Bearer <supabase-access-token>
 
 {
   "prompt": "Explain quantum computing",
@@ -310,6 +314,8 @@ az container create \
 ## 🔒 Security
 
 - JWT-based authentication via Supabase
+- RBAC for `user` (own documents) and `admin` (all documents)
+- Redis-backed endpoint rate limiting (`429` + `Retry-After`)
 - CORS configuration
 - Input validation (Pydantic)
 - SQL injection prevention (SQLAlchemy ORM)
@@ -345,6 +351,12 @@ DATABASE_URL=postgresql+asyncpg://user:pass@host:5432/db
 
 # Security
 SECRET_KEY=your-secret-key
+
+# Rate limiting
+RATE_LIMIT_ENABLED=true
+RATE_LIMIT_AUTH_REQUESTS_PER_WINDOW=60
+RATE_LIMIT_AI_REQUESTS_PER_WINDOW=30
+RATE_LIMIT_DOCUMENTS_REQUESTS_PER_WINDOW=60
 ```
 
 ### Required Frontend Variables
@@ -381,8 +393,8 @@ MIT License - Use freely for any project
 - ✅ API documentation
 - ✅ Environment configuration
 - ✅ Authentication (Supabase)
-- ⬜ Authorization (RBAC)
-- ⬜ Rate limiting
+- ✅ Authorization (RBAC)
+- ✅ Rate limiting
 - ⬜ Monitoring & logging
 - ⬜ Unit tests
 - ⬜ Integration tests

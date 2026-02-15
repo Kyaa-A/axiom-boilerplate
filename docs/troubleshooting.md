@@ -76,3 +76,16 @@ By default, the script exits successfully if auth token and/or AI provider keys 
 ```bash
 AUTH_TOKEN=your-jwt STRICT_AI=1 ./infra/scripts/smoke-test.sh
 ```
+
+## API returns 429 Too Many Requests
+
+Rate limits are enabled by default on `/api/v1/auth/*`, `/api/v1/documents/*`, and `/api/v1/ai/*`.
+
+Tune limits in `backend/.env`:
+
+```bash
+RATE_LIMIT_ENABLED=true
+RATE_LIMIT_AUTH_REQUESTS_PER_WINDOW=60
+RATE_LIMIT_AI_REQUESTS_PER_WINDOW=30
+RATE_LIMIT_DOCUMENTS_REQUESTS_PER_WINDOW=60
+```

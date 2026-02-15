@@ -239,7 +239,8 @@ Access granted/denied
 
 - CORS configured for allowed origins
 - JWT validation on protected routes
-- Rate limiting (TODO: implement)
+- RBAC: `user` can access own documents, `admin` can access all documents
+- Redis-backed rate limiting for `/auth`, `/documents`, and `/ai`
 - Input validation via Pydantic
 - SQL injection prevention (SQLAlchemy ORM)
 
@@ -298,9 +299,7 @@ Access granted/denied
 
 After setting up this boilerplate:
 
-1. **Authorization**: Add role-based access control
-2. **Rate Limiting**: Add request rate limits
-3. **Monitoring**: Integrate logging/metrics (e.g., Sentry, Datadog)
-4. **Testing**: Add unit and integration tests
-5. **CI/CD**: Set up GitHub Actions workflows
-6. **Documentation**: Add OpenAPI/Swagger docs
+1. **Monitoring**: Integrate logging/metrics (e.g., Sentry, Datadog)
+2. **Testing**: Add unit and integration tests
+3. **CI/CD**: Set up GitHub Actions workflows
+4. **Documentation**: Add OpenAPI/Swagger docs

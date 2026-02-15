@@ -97,6 +97,35 @@ class CacheClient:
 
         return await self._redis.incrby(key, amount)
 
+    async def increment_with_expiry(
+        self,
+        key: str,
+        expire_seconds: int,
+        amount: int = 1,
+    ) -> int:
+        """
+        Increment counter and ensure TTL is set for rate-limiting windows.
+        """
+        if not self._redis:
+            return 0
+
+        async with self._redis.pipeline(transaction=True) as pipeline:
+            pipeline.incrby(key, amount)
+            pipeline.ttl(key)
+            count, ttl = await pipeline.execute()
+
+        if ttl == -1:
+            await self._redis.expire(key, expire_seconds)
+
+        return int(count)
+
+    async def ttl(self, key: str) -> int:
+        """Return key TTL in seconds."""
+        if not self._redis:
+            return -2
+
+        return await self._redis.ttl(key)
+
 
 # Global cache instance
 cache_client = CacheClient()

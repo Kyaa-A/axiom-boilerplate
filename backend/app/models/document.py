@@ -26,6 +26,7 @@ class Document(Base):
         default=uuid.uuid4,
         nullable=False,
     )
+    owner_id = Column(String(128), nullable=False, index=True)
     title = Column(String(500), nullable=False, index=True)
     content = Column(Text, nullable=False)
     source = Column(String(255), nullable=True)

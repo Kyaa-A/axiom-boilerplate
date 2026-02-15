@@ -6,6 +6,7 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.responses import StreamingResponse
 
 from app.core.auth import get_current_user
+from app.core.rate_limit import ai_rate_limit
 from app.schemas.document import QueryRequest, QueryResponse
 from app.services.ai.chains.base_chain import rag_chain
 from app.services.ai.llm.cerebras_client import cerebras_client
@@ -13,7 +14,7 @@ from app.services.ai.llm.cerebras_client import cerebras_client
 router = APIRouter(
     prefix="/ai",
     tags=["ai"],
-    dependencies=[Depends(get_current_user)],
+    dependencies=[Depends(get_current_user), Depends(ai_rate_limit)],
 )
 
 

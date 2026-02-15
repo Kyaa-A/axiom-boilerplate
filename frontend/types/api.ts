@@ -55,6 +55,8 @@ export interface AuthUser {
   id: string;
   email?: string;
   role?: string;
+  roles?: string[];
+  is_admin?: boolean;
 }
 
 export interface APIError {
